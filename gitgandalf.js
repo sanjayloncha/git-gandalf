@@ -7,7 +7,7 @@ let diff = "";
 process.stdin.on("data", chunk => {
     diff += chunk;
 });
-
+// this is commented to test git hooks
 process.stdin.on("end", async () => {
     if (!diff.trim()) {
         process.exit(0);
