@@ -7,7 +7,12 @@ let diff = "";
 process.stdin.on("data", chunk => {
     diff += chunk;
 });
-    
+
+process.stdin.on("data", chunk => {
+  console.log("STDIN:", chunk.toString());
+});
+
+
 process.stdin.on("end", async () => {
     if (!diff.trim()) {
         process.exit(0);
