@@ -12,7 +12,7 @@ Git Gandalf intercepts git commits, sends the staged diff to LM Studio for analy
 2. Git triggers the pre-commit hook
 3. Hook pipes staged diff to `gitgandalf.js` via STDIN
 4. Node.js script sends diff to LM Studio (localhost:1234)
-5. Qwen2.5-Coder-Instruct model returns JSON with risk level (`low`, `medium`, `high`) and summary
+5. Qwen2.5-Coder-Instruct model returns structured JSON with risk level (`LOW`, `MEDIUM`, `HIGH`) and summary
 6. Script exits with code 0 (allow) or 1 (block) based on risk level
 7. Git proceeds or aborts the commit accordingly
 
@@ -74,6 +74,12 @@ git commit --no-verify -m "Emergency fix"
 - **Exit 0**: Commit allowed (low or medium risk)
 - **Exit 1**: Commit blocked (high risk detected)
 
+Additionally, Exit 1 is triggered if:
+- LLM server is unavailable
+- The request times out (15s safeguard)
+- The model returns malformed or invalid JSON
+- An unexpected risk value is returned
+
 The hook returns exit code 1 when the LLM identifies critical issues like hardcoded credentials, security vulnerabilities, or dangerous patterns. All other cases return 0.
 
 ## Limitations
@@ -84,3 +90,5 @@ The hook returns exit code 1 when the LLM identifies critical issues like hardco
 - No configuration options (fixed risk thresholds)
 - AI may produce false positives on legitimate code patterns
 - Each commit analyzed independently (no historical context)
+- Deterministic keyword detection scans only newly added lines to reduce false positives
+- LLM requests are automatically aborted after 15 seconds to prevent hanging commits
